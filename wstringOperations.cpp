@@ -51,7 +51,7 @@ int main()
 	std::wofstream fout;	fout.imbue(loc);
 	std::wifstream fin;		fin.imbue(loc);
 
-	wstring sin, verse = L"وبعده يا أيها الجواد";
+	wstring sin, verse = L"أَمِنَ المَنونِ وَريبِها تَتَوَجَّعُ";
 
 	fout.open("foutFile.txt");						//	OUTPUT SECTION
 	fout << verse;									//	<<<<<<<<<<<<<<
@@ -208,6 +208,29 @@ int main()
 				sin.replace(i, 1, 1, sin[i] == L'ٍ' ? L'ِ' : L'ُ');
 				sin.insert(sin.begin() + i, L'ن');	 i++;
 				sin.insert(sin.begin() + 1 + i, L'ْ');
+			}
+			break;
+
+		case L'ّ':
+			if(isWayon(sin[i+1]))	// اتجّاه
+			{
+				sin.replace(i, 1, 1, L'ْ');
+				sin.insert(sin.begin() + 1 + i, sin[i-1]);
+				switch (sin[i+2])
+				{
+				case L'ي': case L'و':
+					sin.insert(sin.begin() + 2 + i, sin[i + 2] == L'و' ? L'ُ' : L'ِ');
+					break;
+				case L'ا': case L'ى':
+					sin.insert(sin.begin() + 2 + i, L'َ');
+					break;
+				default: ;
+				}
+			}
+			else
+			{
+				sin.replace(i, 1, 1, L'ْ');
+				sin.insert(sin.begin() + 1 + i, sin[i - 1]);
 			}
 			break;
 
