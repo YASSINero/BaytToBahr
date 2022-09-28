@@ -51,7 +51,7 @@ int main()
 	std::wofstream fout;	fout.imbue(loc);
 	std::wifstream fin;		fin.imbue(loc);
 
-	wstring sin, verse = L"يا وَيحَ جَنبِكَ بِالسَهمِ المُصيبِ رُمي";
+	wstring sin, verse = L"وبعده يا أيها الجواد";
 
 	fout.open("foutFile.txt");						//	OUTPUT SECTION
 	fout << verse;									//	<<<<<<<<<<<<<<
@@ -174,9 +174,9 @@ int main()
 			if (i == 0)
 				continue; //Continue because arabic doesnt start with a saak'in
 
-			if(sin[i+1] == L'?')
+			if(sin[i+1] == L'ا')
 			{
-				sin.insert(sin.begin() + 1 + i, L'?');
+				sin.insert(sin.begin() + 1 + i, L'َ');
 			}	// WTF?? maybe sin[i+1] == alif ?
 
 			if (i + 1 < sin.size() && !isHaraka(sin.at(i + 1)) && !isHaraka(sin[i - 1]) && sin.at(i - 1) != L' ')
