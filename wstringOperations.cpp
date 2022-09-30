@@ -6,12 +6,14 @@
 
 #include <iostream>
 
+#include "Horoof.h"
+
 
 using std::wstring;
 //====================================================================================
 
-const wchar_t abajad[] = {L'ً',L'ٌ',L'ٍ'};
-const wchar_t harakat[] = {L'َ', L'ُ',L'ِ',L'ّ', L'ْ'};
+const wchar_t abajad[] = { harakat::getTFatha(),harakat::getTDamma(),harakat::getTKasra() };
+const wchar_t harakat[] = { harakat::getFatha(), harakat::getDamma() ,harakat::getKasra() ,harakat::getShadda() , harakat::getSokoon()};
 
 bool isTanween(const wchar_t harf)
 {
@@ -37,7 +39,7 @@ bool isHaraka(const wchar_t harf)
 
 bool isWayon(const wchar_t harf/*, const size_t off, const wstring& wstr*/) // wayon as in ????
 {
-		if (harf == L'ا' || harf == L'و' || harf == L'ي' || harf == L'ى')
+		if (harf == harf::getAlif() || harf == harf::getWaw() || harf == harf::getYa2() || harf == harf::getShortAlif())
 			return true;
 
 	return false;
@@ -51,34 +53,33 @@ int main()
 	std::wofstream fout;	fout.imbue(loc);
 	std::wifstream fin;		fin.imbue(loc);
 
-	wstring sin, verse = L"أَمِنَ المَنونِ وَريبِها تَتَوَجَّعُ";
+	wstring sin, verse = L"أَودى بَنِيَّ مِنَ البِلادِ فَوَدَّعوا";
 
 	fout.open("foutFile.txt");						//	OUTPUT SECTION
-	fout << verse;									//	<<<<<<<<<<<<<<
-	fout.close();									//	xxxxxxxxxxxxxx
+	fout << verse;											//	<<<<<<<<<<<<<<
+	fout.close();											//	xxxxxxxxxxxxxx
 
 
-	fin.open("foutFile.txt");						//	INPUT SECTION
+	fin.open("foutFile.txt");								//	INPUT SECTION
 	std::getline(fin, sin);
-	fin >> sin;										//	>>>>>>>>>>>>>
+	fin >> sin;														//	>>>>>>>>>>>>>
 
 
 	fout.open("foutFile.txt", std::ios_base::app);	//	<<<<<<<<<<<<<
-	fout << '\n' << sin;							//	<<<<<<<<<<<<<
+	fout << '\n' << sin;											//	<<<<<<<<<<<<<
 
 
-	std::getline(fin, sin);							//	>>>>>>>>>>>>>
-	//sin.replace(sin.begin(), sin.end(), L'?', L"??");
+	std::getline(fin, sin);									//	>>>>>>>>>>>>>
 
 	for (size_t i = 0; i<sin.size(); i++)
 	{
 		switch (sin[i])
 		{
-		case L'ى':
+		case harf::getShortAlif():	//short alif
 
 				// own's letter harf process
 			if (i == sin.size() - 1 /* || i == sin.size() - 2 */)
-				sin.insert(sin.begin() + 1 + i, L'ْ');
+				sin.insert(sin.begin() + 1 + i, harakat::getSokoon());
 			else
 			{
 				/*
@@ -87,28 +88,28 @@ int main()
 					sin.replace(i-1, 1, 1, L'?');
 				}	// haraka correction (soukoun insertion below)
 				*/
-				if (sin[i - 1] != L'َ' && !isHaraka(sin[i - 1]))
+				if (sin[i - 1] != harakat::getFatha() && !isHaraka(sin[i - 1]))
 				{
 					if (i + 1 < sin.size() && !isTanween(sin[i + 1]))
 					{
-						sin.insert(sin.begin() + i, L'َ');
+						sin.insert(sin.begin() + i, harakat::getFatha());
 						i++;	// this fixes the 112 bug
 					}
 				}		// giving fatha to preceeding harf
 
 				if (i + 1 < sin.size() - 1 && isTanween(sin[i + 1]))
 				{
-					sin.replace(i, 1, 1, L'َ');
+					sin.replace(i, 1, 1, harakat::getFatha());
 					sin.replace(i + 1, 1, 1, L'ن');
-					sin.insert(sin.begin() + 2 + i, L'ْ');
+					sin.insert(sin.begin() + 2 + i, harakat::getSokoon());
 				}	// tanween materialization if not in the end
 				else if (i + 1 == sin.size() - 1 && isTanween(sin[i + 1]))
 				{
-					sin.replace(i + 1, 1, 1, L'ْ');
+					sin.replace(i + 1, 1, 1, harakat::getSokoon());
 				}	// replacing last tanween with soukoun
 				else	
 				{
-					sin.insert(sin.begin() + 1 + i, L'ْ');
+					sin.insert(sin.begin() + 1 + i, harakat::getSokoon());
 					// inserting soukoun
 				}
 				//AFTER INSERTING A wchar the wstring gets longer by 1
@@ -120,39 +121,42 @@ int main()
 
 
 
-		case L'ا':
+		case harf::getAlif():	// Alif
 
 			if (i == sin.size() - 1)
 			{
-				sin.insert(sin.begin() + 1 + i, L'ْ');
+				sin.insert(sin.begin() + 1 + i, harakat::getSokoon());
 				if (!isHaraka(sin[i - 1]))
 				{
-					sin.insert(sin.begin() + i, L'َ');
+					sin.insert(sin.begin() + i, harakat::getFatha());
+					i++;
 				}
 			}
 			else
 			{
 				if(sin[i-1] != L' ' && !isTanween(sin[i+1]) && !isHaraka(sin[i - 1]))
 				{
-					sin.insert(sin.begin() + i, L'َ');
+					sin.insert(sin.begin() + i, harakat::getFatha());
 					i++;
 				}
 
 				if (i+1 == sin.size()-1 && isTanween(sin[i + 1]))
 				{
-					sin.replace(i + 1, 1, 1, L'ْ');
-					sin.insert(sin.begin() + i, L'َ');
+					sin.replace(i + 1, 1, 1, harakat::getSokoon());
+					sin.insert(sin.begin() + i, harakat::getFatha());
+					i++;
 				}	// replacing last tanween with soukoun
 				else if(i + 1 < sin.size() - 1 && isTanween(sin[i + 1]))
 				{
-					sin.replace(i, 1, 1, L'َ');
+					sin.replace(i, 1, 1, harakat::getFatha());
 					sin.replace(i + 1, 1, 1, L'ن');
-					sin.insert(sin.begin() + 2 + i, L'ْ');
+					sin.insert(sin.begin() + 2 + i, harakat::getSokoon());
 				}	// tanween materialization if not in the end
 				else
 				{
 					// then alif is followed by a harf
-					sin.insert(sin.begin() + 1 + i, L'ْ');
+					//if(sin[])
+					sin.insert(sin.begin() + 1 + i, harakat::getSokoon());
 					//sin.insert(sin.begin() + i, L'?');
 				}
 
@@ -169,67 +173,68 @@ int main()
 				
 			}
 		break;
-		case L'ي': case L'و':	//Todo: work on decompressing chadda
+		case harf::getYa2(): case harf::getWaw():	//Todo: fix waw ljama3a preceeding alif getting a fatha 
 			
 			if (i == 0)
 				continue; //Continue because arabic doesnt start with a saak'in
 
-			if(sin[i+1] == L'ا')
+			if(sin[i+1] == harf::getAlif())
 			{
-				sin.insert(sin.begin() + 1 + i, L'َ');
+				sin.insert(sin.begin() + 1 + i, harakat::getFatha());
 			}	// WTF?? maybe sin[i+1] == alif ?
 
 			if (i + 1 < sin.size() && !isHaraka(sin.at(i + 1)) && !isHaraka(sin[i - 1]) && sin.at(i - 1) != L' ')
 					{
-						sin.insert(sin.begin() + 1 + i, L'ْ');
+						sin.insert(sin.begin() + 1 + i, harakat::getSokoon());
 
-						sin.insert(sin.begin() + i, sin[i] == L'و' ? L'ُ' : L'ِ');
-
+						sin.insert(sin.begin() + i, sin[i] == harf::getWaw() ? harakat::getDamma() : harakat::getKasra());
+						i++;
 					}	// giving haraka to preceeding harf according to cond.
 			else if (i == sin.size() - 1)
 					{
-						sin.insert(sin.begin() + 1 + i, L'ْ');
+						sin.insert(sin.begin() + 1 + i, harakat::getSokoon());
 						if(!isHaraka(sin[i - 1]))
 						{
-							sin.insert(sin.begin() + i, sin[i] == L'و' ? L'ُ' : L'ِ');
+							sin.insert(sin.begin() + i, sin[i] == harf::getWaw() ? harakat::getDamma() : harakat::getKasra());
+							i++;
 						}
 					}
 			
 			break;
 
-		case L'ٍ': case L'ٌ':
+		case harakat::getTKasra(): case harakat::getTDamma():
 			if (i == sin.size() - 1)
 			{
-				sin.replace(i, 1, 1, sin[i] == L'ٍ' ? L'ِ' : L'ُ');
-				sin.insert(sin.begin() + 1 + i, L'ْ');
+				sin.replace(i, 1, 1, sin[i] == harakat::getTKasra() ? harakat::getKasra() : harakat::getDamma());
+				sin.insert(sin.begin() + 1 + i, harakat::getSokoon());
 			}
 			else
 			{
-				sin.replace(i, 1, 1, sin[i] == L'ٍ' ? L'ِ' : L'ُ');
+				sin.replace(i, 1, 1, sin[i] == harakat::getTKasra() ? harakat::getKasra() : harakat::getDamma());
 				sin.insert(sin.begin() + i, L'ن');	 i++;
-				sin.insert(sin.begin() + 1 + i, L'ْ');
+				sin.insert(sin.begin() + 1 + i, harakat::getSokoon());
 			}
 			break;
 
-		case L'ّ':
-			if(isWayon(sin[i+1]))	// اتجّاه
+		case harakat::getShadda():
+			if(isWayon(sin[i+1]))	// ابّان
 			{
-				sin.replace(i, 1, 1, L'ْ');
+				sin.replace(i, 1, 1, harakat::getSokoon());
 				sin.insert(sin.begin() + 1 + i, sin[i-1]);
 				switch (sin[i+2])
 				{
-				case L'ي': case L'و':
-					sin.insert(sin.begin() + 2 + i, sin[i + 2] == L'و' ? L'ُ' : L'ِ');
+				case harf::getYa2(): case harf::getWaw():
+					sin.insert(sin.begin() + 2 + i, sin[i + 2] == harf::getWaw() ? harakat::getDamma() : harakat::getKasra());
 					break;
-				case L'ا': case L'ى':
-					sin.insert(sin.begin() + 2 + i, L'َ');
+				case harf::getAlif(): case harf::getShortAlif():
+					sin.insert(sin.begin() + 2 + i, harakat::getFatha());
 					break;
 				default: ;
 				}
 			}
 			else
 			{
-				sin.replace(i, 1, 1, L'ْ');
+				sin.replace(i, 1, 1, harakat::getSokoon());
 				sin.insert(sin.begin() + 1 + i, sin[i - 1]);
 			}
 			break;

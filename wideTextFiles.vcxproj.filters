@@ -28,4 +28,9 @@
   <ItemGroup>
     <Text Include="foutFile.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Horoof.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>
