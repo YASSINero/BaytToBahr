@@ -53,7 +53,7 @@ int main()
 	std::wofstream fout;	fout.imbue(loc);
 	std::wifstream fin;		fin.imbue(loc);
 
-	wstring sin, verse = L"أَودى بَنِيَّ مِنَ البِلادِ فَوَدَّعوا";
+	wstring sin, verse = L"وَليَأتِيَنَّ عَلَيكَ يَومٌ مَرَّةً";
 
 	fout.open("foutFile.txt");						//	OUTPUT SECTION
 	fout << verse;											//	<<<<<<<<<<<<<<
@@ -123,17 +123,33 @@ int main()
 
 		case harf::getAlif():	// Alif
 
-			if (i == sin.size() - 1)
+			if (i == sin.size() - 1 || sin[i + 1] == L' ') //check last letter is alif
 			{
 				sin.insert(sin.begin() + 1 + i, harakat::getSokoon());
 				if (!isHaraka(sin[i - 1]))
 				{
-					sin.insert(sin.begin() + i, harakat::getFatha());
-					i++;
+					if (sin[i - 1] == harf::getWaw() && sin[i - 2] != L' ')	//check waw's surroundings
+					{
+						sin.insert(sin.begin() + i, harakat::getSokoon());	//=> it's waw ljam3
+						i++;
+					}
+					else
+					{
+						sin.insert(sin.begin() + i, harakat::getFatha());
+						i++;
+					}
 				}
 			}
 			else
 			{
+				//if(i == sin.size() - 1 || sin[i+1] == L' ')	//check alif in the end 
+				
+					//if(sin[i-1] == harf::getWaw() && sin[i - 2] != L' ')	//check waw preceding it
+					//{
+					//	sin.insert(sin.begin() + i, harakat::getSokoon());	//=> it's waw ljam3
+					//	i++;
+					//}
+				
 				if(sin[i-1] != L' ' && !isTanween(sin[i+1]) && !isHaraka(sin[i - 1]))
 				{
 					sin.insert(sin.begin() + i, harakat::getFatha());
@@ -173,14 +189,15 @@ int main()
 				
 			}
 		break;
-		case harf::getYa2(): case harf::getWaw():	//Todo: fix waw ljama3a preceeding alif getting a fatha 
+		case harf::getYa2(): case harf::getWaw():	//Todo: fix tFatha for Ta2 marbota
 			
 			if (i == 0)
 				continue; //Continue because arabic doesnt start with a saak'in
 
-			if(sin[i+1] == harf::getAlif())
+			if(sin[i+1] == harf::getShortAlif())
 			{
-				sin.insert(sin.begin() + 1 + i, harakat::getFatha());
+				if(!isTanween(sin[i+2]))
+					sin.insert(sin.begin() + 1 + i, harakat::getFatha());
 			}	// WTF?? maybe sin[i+1] == alif ?
 
 			if (i + 1 < sin.size() && !isHaraka(sin.at(i + 1)) && !isHaraka(sin[i - 1]) && sin.at(i - 1) != L' ')
@@ -206,13 +223,18 @@ int main()
 			if (i == sin.size() - 1)
 			{
 				sin.replace(i, 1, 1, sin[i] == harakat::getTKasra() ? harakat::getKasra() : harakat::getDamma());
-				sin.insert(sin.begin() + 1 + i, harakat::getSokoon());
+				if (sin[i - 1] == L'ة')	
+				{	//Ta2 changes if not in the end
+					sin.replace(i - 1, 1, 1, L'ت');	//by ta2 mabsouta
+				}
+				sin.insert(sin.begin() + 1 + i, sin[i] == harakat::getTKasra() ? harf::getYa2() : harf::getWaw());
+				sin.insert(sin.begin() + 2 + i, harakat::getSokoon());
 			}
 			else
 			{
 				sin.replace(i, 1, 1, sin[i] == harakat::getTKasra() ? harakat::getKasra() : harakat::getDamma());
-				sin.insert(sin.begin() + i, L'ن');	 i++;
-				sin.insert(sin.begin() + 1 + i, harakat::getSokoon());
+				sin.insert(sin.begin() + 1 + i, L'ن');
+				sin.insert(sin.begin() + 2 + i, harakat::getSokoon());
 			}
 			break;
 
