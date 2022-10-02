@@ -53,7 +53,7 @@ int main()
 	std::wofstream fout;	fout.imbue(loc);
 	std::wifstream fin;		fin.imbue(loc);
 
-	wstring sin, verse = L"وَليَأتِيَنَّ عَلَيكَ يَومٌ مَرَّةً";
+	wstring sin, verse = L"رَمَى حَجَراً فِي بَحْرِ زَنْجِ الدّجِنَّةِ";
 
 	fout.open("foutFile.txt");						//	OUTPUT SECTION
 	fout << verse;											//	<<<<<<<<<<<<<<
@@ -73,6 +73,24 @@ int main()
 
 	for (size_t i = 0; i<sin.size(); i++)
 	{
+		//if(sin[i] == L'ة' && i+1<sin.size() && (i+1 == sin.size()-1 || sin[i+1] == L' '))
+		if (sin[i] == L'ة')	// tiedTa2 process isn't perfect
+		{
+			if(i == sin.size()-1)
+			{
+				sin.replace(i, 1, 1, L'ه');
+				sin.insert(sin.begin() + 1 + i, harakat::getSokoon());
+			}
+			if (i + 1 < sin.size()-1 && sin[i + 1] == harakat::getTFatha())
+			{
+				sin.replace(i, 1, 1, L'ت');
+				sin.replace(i+1, 1, 1, harakat::getFatha());
+				sin.insert(sin.begin() + 2 + i, L'ن');
+				sin.insert(sin.begin() + 3 + i, harakat::getSokoon());
+			}
+		}
+		
+
 		switch (sin[i])
 		{
 		case harf::getShortAlif():	//short alif
@@ -142,13 +160,13 @@ int main()
 			}
 			else
 			{
-				//if(i == sin.size() - 1 || sin[i+1] == L' ')	//check alif in the end 
+				/*if(i == sin.size() - 1 || sin[i+1] == L' ')	//check alif in the end 
 				
-					//if(sin[i-1] == harf::getWaw() && sin[i - 2] != L' ')	//check waw preceding it
-					//{
-					//	sin.insert(sin.begin() + i, harakat::getSokoon());	//=> it's waw ljam3
-					//	i++;
-					//}
+					if(sin[i-1] == harf::getWaw() && sin[i - 2] != L' ')	//check waw preceding it
+					{
+						sin.insert(sin.begin() + i, harakat::getSokoon());	//=> it's waw ljam3
+						i++;
+					}*/
 				
 				if(sin[i-1] != L' ' && !isTanween(sin[i+1]) && !isHaraka(sin[i - 1]))
 				{
@@ -189,7 +207,7 @@ int main()
 				
 			}
 		break;
-		case harf::getYa2(): case harf::getWaw():	//Todo: fix tFatha for Ta2 marbota
+		case harf::getYa2(): case harf::getWaw():	//Todo: Add Qafia support for tanwin in the end
 			
 			if (i == 0)
 				continue; //Continue because arabic doesnt start with a saak'in
