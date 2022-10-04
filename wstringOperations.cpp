@@ -37,7 +37,7 @@ bool isHaraka(const wchar_t harf)
 	return false;*/
 }
 
-bool isWayon(const wchar_t harf/*, const size_t off, const wstring& wstr*/) // wayon as in ????
+bool isWayon(const wchar_t harf/*, const size_t off, const wstring& wstr*/) // wayon as in واي
 {
 		if (harf == harf::getAlif() || harf == harf::getWaw() || harf == harf::getYa2() || harf == harf::getShortAlif())
 			return true;
@@ -53,7 +53,7 @@ int main()
 	std::wofstream fout;	fout.imbue(loc);
 	std::wifstream fin;		fin.imbue(loc);
 
-	wstring sin, verse = L"رَمَى حَجَراً فِي بَحْرِ زَنْجِ الدّجِنَّةِ";
+	wstring sin, verse = L"ويَأْتِي الفِطْرُ بَعْدَ الصَّوْمِ عيداً";
 
 	fout.open("foutFile.txt");						//	OUTPUT SECTION
 	fout << verse;											//	<<<<<<<<<<<<<<
@@ -240,12 +240,13 @@ int main()
 		case harakat::getTKasra(): case harakat::getTDamma():
 			if (i == sin.size() - 1)
 			{
+				// this line replaces tanween by haraka
 				sin.replace(i, 1, 1, sin[i] == harakat::getTKasra() ? harakat::getKasra() : harakat::getDamma());
 				if (sin[i - 1] == L'ة')	
 				{	//Ta2 changes if not in the end
 					sin.replace(i - 1, 1, 1, L'ت');	//by ta2 mabsouta
 				}
-				sin.insert(sin.begin() + 1 + i, sin[i] == harakat::getTKasra() ? harf::getYa2() : harf::getWaw());
+				sin.insert(sin.begin() + 1 + i, sin[i] == harakat::getKasra() ? harf::getYa2() : harf::getWaw());
 				sin.insert(sin.begin() + 2 + i, harakat::getSokoon());
 			}
 			else
